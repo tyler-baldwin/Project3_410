@@ -33,3 +33,7 @@ void setCancelThreads(bool bCancel) {
 void joinThreads() {
 
 }
+
+int main(){
+
+}
