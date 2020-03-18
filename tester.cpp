@@ -10,7 +10,7 @@
 #include <iostream>
 #include "print_ts.h"
 //stores running and stopped threads
-std::vector<std::thread> vecThreads;
+std::vector<std::thread> vecThreads(std::thread::hardware_concurrency());
 bool pleaseStop;
 /*
  * starts cancelable threads
@@ -24,7 +24,10 @@ void startThreads(std::string s, int numThreads, WHICH_PRINT wp,
 		int numTimesToPrint, int millisecond_delay) {
 
 
-	vecThreads.push_back( std::thread (PRINT1,s));
+	for(unsigned i=0;i<numThreads;++i)
+	{
+	    vecThreads[i]=std::thread(PRINT1,s);
+	}
 
 
 
@@ -69,7 +72,7 @@ void joinThreads() {
 int main() {
 	pleaseStop = false;
 	int numbThreads = std::thread::hardware_concurrency();
-	vecThreads = { };
+
 
 	startThreads("A", numbThreads, P2, 4, 1000);
 	startThreads("B", numbThreads, P3, 5, 1000);
