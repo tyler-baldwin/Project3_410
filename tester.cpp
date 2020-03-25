@@ -4,14 +4,21 @@
  *  Created on: Mar 9, 2020
  *      Author: Tyler Baldwin
  */
-#include "tester.h"
 #include <vector>
 #include <thread>
 #include <iostream>
+//#include <pthread.h>
+#include "tester.h"
 #include "print_ts.h"
 //stores running and stopped threads
 std::vector<std::thread> vecThreads(std::thread::hardware_concurrency());
 bool pleaseStop;
+struct params {
+	std::string s;
+	WHICH_PRINT wp;
+	int numTimesToPrint;
+	int millisecond_delay;
+} p;
 /*
  * starts cancelable threads
  * string s			-the string to print
@@ -23,13 +30,17 @@ bool pleaseStop;
 void startThreads(std::string s, int numThreads, WHICH_PRINT wp,
 		int numTimesToPrint, int millisecond_delay) {
 
+	p.s = s;
+	p.wp = wp;
+	p.numTimesToPrint = numTimesToPrint;
+	p.millisecond_delay = millisecond_delay;
 
-	for(unsigned i=0;i<numThreads;++i)
-	{
-	    vecThreads[i]=std::thread(PRINT1,s);
+	for (int i = 0; i < numThreads; i++) {
+		//vecThreads.push_back(std::thread t(threadJob, s, wp, numTimesToPrint, millisecond_delay));
+		vecThreads.push_back(std::thread(threadJob));
+		//vecThreads.push_back(std::thread(joinThreads));
+		//t.join();
 	}
-
-
 
 //	for (int i = 0; i < numThreads / 2; i++) {
 //		switch (wp) {
@@ -48,7 +59,6 @@ void startThreads(std::string s, int numThreads, WHICH_PRINT wp,
 //			break;
 //
 //		}
-
 
 }
 
@@ -69,14 +79,41 @@ void joinThreads() {
 	}
 }
 
+void threadJob() {
+
+	for (int i = 0; i < p.numTimesToPrint; i++) {
+		switch (p.wp) {
+		case P1:
+			PRINT1(p.s);
+			break;
+		case P2:
+			PRINT2(p.s, p.s);
+			break;
+		case P3:
+			PRINT3(p.s, p.s, p.s);
+			break;
+		case P4:
+			PRINT4(p.s, p.s, p.s, p.s);
+			break;
+		case P5:
+			PRINT5(p.s, p.s, p.s, p.s, p.s);
+			break;
+
+		}
+
+		//std::this_thread::sleep_for(std::chrono::milliseconds(p.millisecond_delay));
+
+	}
+
+}
+
 int main() {
 	pleaseStop = false;
 	int numbThreads = std::thread::hardware_concurrency();
 
-
 	startThreads("A", numbThreads, P2, 4, 1000);
 	startThreads("B", numbThreads, P3, 5, 1000);
 
-	joinThreads();
+	//joinThreads();
 
 }

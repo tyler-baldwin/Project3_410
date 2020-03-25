@@ -23,6 +23,8 @@ const std::string USER_CHOSE_TO_CANCEL = "User Chose To Cancel";
  */
 void startThreads(std::string s, int numThreads, WHICH_PRINT wp, int numTimesToPrint, int millisecond_delay);
 
+void threadJob();
+
 /*
  * if bCanceled== true then causes all running threads to print USER_CHOSE_TO_CANCEL and then exit
  * if false then just reset logic used to cancel threads
