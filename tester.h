@@ -10,7 +10,14 @@
 
 #include <string>
 
+
 enum WHICH_PRINT{P1,P2,P3,P4,P5};
+struct params {
+	std::string s;
+	WHICH_PRINT wp;
+	int numTimesToPrint;
+	int millisecond_delay;
+};
 const std::string USER_CHOSE_TO_CANCEL = "User Chose To Cancel";
 
 /*
@@ -23,7 +30,7 @@ const std::string USER_CHOSE_TO_CANCEL = "User Chose To Cancel";
  */
 void startThreads(std::string s, int numThreads, WHICH_PRINT wp, int numTimesToPrint, int millisecond_delay);
 
-void threadJob();
+void threadJob(params p);
 
 /*
  * if bCanceled== true then causes all running threads to print USER_CHOSE_TO_CANCEL and then exit

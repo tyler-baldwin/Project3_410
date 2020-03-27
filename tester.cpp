@@ -7,18 +7,13 @@
 #include <vector>
 #include <thread>
 #include <iostream>
-//#include <pthread.h>
+#include <pthread.h>
 #include "tester.h"
 #include "print_ts.h"
 //stores running and stopped threads
 std::vector<std::thread> vecThreads(std::thread::hardware_concurrency());
 bool pleaseStop;
-struct params {
-	std::string s;
-	WHICH_PRINT wp;
-	int numTimesToPrint;
-	int millisecond_delay;
-} p;
+params p;
 /*
  * starts cancelable threads
  * string s			-the string to print
@@ -36,30 +31,8 @@ void startThreads(std::string s, int numThreads, WHICH_PRINT wp,
 	p.millisecond_delay = millisecond_delay;
 
 	for (int i = 0; i < numThreads; i++) {
-		//vecThreads.push_back(std::thread t(threadJob, s, wp, numTimesToPrint, millisecond_delay));
-		vecThreads.push_back(std::thread(threadJob));
-		//vecThreads.push_back(std::thread(joinThreads));
-		//t.join();
+		vecThreads.push_back(std::thread(threadJob, p));
 	}
-
-//	for (int i = 0; i < numThreads / 2; i++) {
-//		switch (wp) {
-//		case P1: {
-//			std::thread p1 (PRINT1, s);
-//			vecThreads.push_back(p1);
-//		}
-//			break;
-//		case P2:
-//			break;
-//		case P3:
-//			break;
-//		case P4:
-//			break;
-//		case P5:
-//			break;
-//
-//		}
-
 }
 
 /*
@@ -67,7 +40,8 @@ void startThreads(std::string s, int numThreads, WHICH_PRINT wp,
  * if false then just reset logic used to cancel threads
  */
 void setCancelThreads(bool bCancel) {
-
+	pleaseStop = bCancel;
+	std::cout << USER_CHOSE_TO_CANCEL << '\n';
 }
 
 /*
@@ -75,45 +49,55 @@ void setCancelThreads(bool bCancel) {
  */
 void joinThreads() {
 	for (auto &t : vecThreads) {
-		t.join();
+		if (t.joinable()) {
+			t.join();
+		}
 	}
 }
 
-void threadJob() {
-
-	for (int i = 0; i < p.numTimesToPrint; i++) {
-		switch (p.wp) {
+//helper method to give to threads which importantly needs to be declared in the header I provdided
+void threadJob(params give) {
+	for (int i = 0; i < give.numTimesToPrint; i++) {
+		if(pleaseStop){
+					return;
+		}
+		switch (give.wp) {
 		case P1:
-			PRINT1(p.s);
+			PRINT1(give.s);
 			break;
 		case P2:
-			PRINT2(p.s, p.s);
+			PRINT2(give.s, give.s);
 			break;
 		case P3:
-			PRINT3(p.s, p.s, p.s);
+			PRINT3(give.s, give.s, give.s);
 			break;
 		case P4:
-			PRINT4(p.s, p.s, p.s, p.s);
+			PRINT4(give.s, give.s, give.s, give.s);
 			break;
 		case P5:
-			PRINT5(p.s, p.s, p.s, p.s, p.s);
+			PRINT5(give.s, give.s, give.s, give.s, give.s);
 			break;
 
 		}
-
-		//std::this_thread::sleep_for(std::chrono::milliseconds(p.millisecond_delay));
+		std::this_thread::sleep_for(
+				std::chrono::milliseconds(p.millisecond_delay));
 
 	}
 
 }
 
+//my main method
 int main() {
 	pleaseStop = false;
 	int numbThreads = std::thread::hardware_concurrency();
 
-	startThreads("A", numbThreads, P2, 4, 1000);
-	startThreads("B", numbThreads, P3, 5, 1000);
+	startThreads("ABCD", numbThreads, P4, 300, 10);
+	startThreads("xyz", numbThreads, P2, 400, 100);
 
-	//joinThreads();
+	std::this_thread::sleep_for(
+					std::chrono::milliseconds(1000));
+	setCancelThreads(true);
+
+	joinThreads();
 
 }
